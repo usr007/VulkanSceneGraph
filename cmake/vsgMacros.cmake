@@ -313,7 +313,7 @@ endmacro()
 macro(vsg_add_target_cppcheck)
     set(options)
     set(oneValueArgs SUPPRESSIONS_LIST)
-    set(multiValueArgs FILES INCLUDES)
+    set(multiValueArgs FILES)
     cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     find_program(CPPCHECK cppcheck)
@@ -333,20 +333,11 @@ macro(vsg_add_target_cppcheck)
         if (NOT TARGET cppcheck)
             add_custom_target(cppcheck)
         endif()
-
-        file(GLOB FILES_TO_CHECK
-            ${ARGS_FILES}
-        )
-        
-        list(TRANSFORM ARGS_INCLUDES PREPEND "-I")
-        list(JOIN ARGS_INCLUDES " " CPPCHECK_INCLUDE_OPTION)
-
         add_custom_target(cppcheck-${PROJECT_NAME}
             COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++
                 ${CPPCHECK_EXTRA_OPTIONS}
                 ${SUPPRESSION_LIST}
-                ${FILES_TO_CHECK}
-                ${CPPCHECK_INCLUDE_OPTION}
+                ${ARGS_FILES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Static code analysis using cppcheck"
         )
